@@ -101,6 +101,8 @@ class LoadResourceDemo {
         this.scene.getChildByName("[BBWGC][Board][Text]").removeSelf();
 
 
+        console.log(this.scene.getChildByName("[BBWGC][Name]"));
+
         //轮盘代码
 		Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
 		Laya.stage.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
@@ -194,6 +196,7 @@ class LoadResourceDemo {
         this.point = new Laya.Vector2();
         this._outHitResult = new Laya.HitResult();
         console.log(this.scene.getChildByName("[BBWGC][Name]"));
+        // this.scene.getChildByName("[BBWGC][Name]").destroyed = true;
         var staticName = this.scene.getChildByName("[BBWGC][Name]");
 
         staticName.layer = 10;
@@ -328,6 +331,8 @@ class LoadResourceDemo {
             // this._outHitResult.collider.owner.removeSelf();
             // console.log(this.scene.getChildByName("[BBWGC][Board][Text]"));
 
+
+
             this.scene.addChild(this.BBWText);
         }
 	}
@@ -378,6 +383,9 @@ class LoadResourceDemo {
 			if(this.move == 1){
 			
 				this.camera.transform.translate(_tempVector3);
+                this.scene.getChildByName("[BBWGC][Board][Text]").transform.lookAt(this.camera.transform.position,new Laya.Vector3(0, 1, 0),false);
+                this.scene.getChildByName("[BBWGC][Board][Text]").transform.rotate(new Laya.Vector3(-90, 180, 0), true, false);;
+
 			}else{
 				this.speed = 1;
 				this.camera.transform.rotate(new Laya.Vector3(-Math.sin(this.angle) * this.speed, -Math.cos(this.angle) * this.speed, 0), true, false);
