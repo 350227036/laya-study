@@ -1,7 +1,7 @@
 import CameraMoveScript from "./script/common/CameraMoveScript";
-
+import MouseScript from "./script/common/MouseScript";
 class LoadResourceDemo {
-	private _scene: Laya.Scene3D;
+	private scene: Laya.Scene3D;
 	private sprite3D: Laya.Sprite3D;
 	private pangzi: Laya.Sprite3D;
 	private pangziAnimator: Laya.Animator;
@@ -19,6 +19,14 @@ class LoadResourceDemo {
 	private centerY: number = -1;
 //标记移动的是相机还是视角
 	private move: number = 0;
+
+	//射线检测变量
+    private _ray:Laya.Ray;
+    private _outHitResult:Laya.HitResult;
+    private posX:number = 0.0;
+    private posY:number = 0.0;
+    private point:Laya.Vector2 = new Laya.Vector2();
+
 	constructor() {
 		this._scene = null;
 		this.sprite3D = null;
@@ -63,14 +71,15 @@ class LoadResourceDemo {
 		var camera = new Laya.Camera();
 		//获取摄像机
 		// var camera = this.scene.getChildByName("Main Camera");
+		console.log(this.scene);
 		this.camera = camera;
 		camera.name = "camera";
 		this.scene.addChild(camera);
 		//设置相机清楚标记，使用天空
 		camera.clearFlag = Laya.BaseCamera.CLEARFLAG_SKY;
 		//调整相机的位置
-		camera.transform.translate(new Laya.Vector3(3, 20, 47));
-		// camera.transform.translate(new Laya.Vector3(34541, 10000, -26198));
+		// camera.transform.translate(new Laya.Vector3(3, 20, 47));
+		camera.transform.translate(new Laya.Vector3(34541, 10000, -26198));
 		//近距裁剪
 		camera.nearPlane=0.3;
 		//远距裁剪
@@ -80,13 +89,19 @@ class LoadResourceDemo {
 
 
 		//添加光照
-		var directionLight = new Laya.DirectionLight();
+		// var directionLight = new Laya.DirectionLight();
+		var directionLight = this.scene.getChildByName("Directional Light");
+
 		this.scene.addChild(directionLight);
 		//光照颜色
 		directionLight.color = new Laya.Vector3(1, 1, 1);
 		directionLight.transform.rotate(new Laya.Vector3(-3.14 / 3, 0, 0));
 
-		//轮盘代码
+        this.BBWText = this.scene.getChildByName("[BBWGC][Board][Text]");
+        this.scene.getChildByName("[BBWGC][Board][Text]").removeSelf();
+
+
+        //轮盘代码
 		Laya.stage.on(Laya.Event.MOUSE_DOWN, this, this.mouseDown);
 		Laya.stage.on(Laya.Event.MOUSE_UP, this, this.mouseUp);
 		
@@ -142,7 +157,9 @@ class LoadResourceDemo {
 		var layaMonkey2 = this.scene.addChild(sp) as Laya.MeshSprite3D;
 		layaMonkey2.transform.localScale = new Laya.Vector3(4, 4, 4);
 		layaMonkey2.transform.translate(new Laya.Vector3(-10, 13, 0));
-	
+
+
+
 		//使用精灵
 		this.pangzi = Laya.Loader.getRes("res/threeDimen/skinModel/BoneLinkScene/PangZiNoAni.lh");
 		this.scene.addChild(this.pangzi);
@@ -168,6 +185,31 @@ class LoadResourceDemo {
 		this.pangziAnimator.addState(state1);
 		//播放动作
 		this.pangziAnimator.play("hello");
+
+
+        //射线初始化（必须初始化）
+        this._ray = new Laya.Ray(new Laya.Vector3(0, 0, 0), new Laya.Vector3(0, 0, 0));
+
+        //初始化变量
+        this.point = new Laya.Vector2();
+        this._outHitResult = new Laya.HitResult();
+        console.log(this.scene.getChildByName("[BBWGC][Name]"));
+        var staticName = this.scene.getChildByName("[BBWGC][Name]");
+
+        staticName.layer = 10;
+        //给模型添加碰撞组件
+        var meshCollider = staticName.addComponent(Laya.PhysicsCollider);
+        //创建网格碰撞器
+        var meshShape = new Laya.MeshColliderShape();
+        //获取模型的mesh
+        meshShape.mesh = staticName.meshFilter.sharedMesh;
+        //设置模型的碰撞形状
+        meshCollider.colliderShape = meshShape;
+
+        //添加鼠标事件
+        //鼠标事件监听
+        // Laya.stage.on(Laya.Event.MOUSE_DOWN,this, this.MouseDown);
+
 
 		//实例化前进按钮
 		this.addButton(100, 100, 100, 40, "重置", function (e) {
@@ -256,6 +298,7 @@ class LoadResourceDemo {
 
 	mouseDown(e) {
 		console.log(e);
+
 		if(e.target.name == "view"){
 			this.move = 0; 
 		}else{
@@ -268,6 +311,25 @@ class LoadResourceDemo {
 		this.centerX = Laya.stage.mouseX;
 		this.centerY = Laya.stage.mouseY;
 		Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
+
+		//射线检测
+        this.point.x = Laya.MouseManager.instance.mouseX;
+        this.point.y = Laya.MouseManager.instance.mouseY;
+        //产生射线
+        this.camera.viewportPointToRay(this.point,this._ray);
+        //拿到射线碰撞的物体
+        this.scene.physicsSimulation.rayCast(this._ray,this._outHitResult);
+        console.log(this._outHitResult);
+        //如果碰撞到物体
+        if (this._outHitResult.succeeded)
+        {
+            //删除碰撞到的物体
+			console.log("点到了");
+            // this._outHitResult.collider.owner.removeSelf();
+            // console.log(this.scene.getChildByName("[BBWGC][Board][Text]"));
+
+            this.scene.addChild(this.BBWText);
+        }
 	}
 
 	mouseUp() {
@@ -344,3 +406,4 @@ class LoadResourceDemo {
 
 //激活启动类
 new LoadResourceDemo();
+
