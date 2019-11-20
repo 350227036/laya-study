@@ -198,6 +198,7 @@ class LoadResourceDemo {
         console.log(this.scene.getChildByName("[BBWGC][Name]"));
         // this.scene.getChildByName("[BBWGC][Name]").destroyed = true;
         var staticName = this.scene.getChildByName("[BBWGC][Name]");
+        // var staticName = this.scene.getChildByName("[BBWGC][Model]");
 
         staticName.layer = 10;
         //给模型添加碰撞组件

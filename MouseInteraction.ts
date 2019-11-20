@@ -31,7 +31,7 @@ class MouseInteraction{
         //添加相机
         this._camera = new Laya.Camera(0, 0.1, 100);
         this._scene.addChild(this._camera);
-        this._camera.transform.translate(new Laya.Vector3(0, 0.7, 5));
+        this._camera.transform.translate(new Laya.Vector3(0, 10, 50));
         this._camera.transform.rotate(new Laya.Vector3( -15, 0, 0), true, false);
         this._camera.addComponent(CameraMoveScript);
 
@@ -63,18 +63,20 @@ class MouseInteraction{
         //加载地面
         var grid = this._scene.addChild(Laya.Loader.getRes("res/threeDimen/staticModel/grid/plane.lh")) as Laya.Sprite3D;
         //指定精灵的图层
-        grid.layer = 10;
+        grid.layer = 1;
         //地面接收阴影
         (grid.getChildAt(0) as Laya.MeshSprite3D).meshRenderer.receiveShadow = true;
         //加载静态小猴子
         var staticLayaMonkey = new Laya.MeshSprite3D(Laya.Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/LayaMonkey-LayaMonkey.lm"));
+        // var staticLayaMonkey = new Laya.MeshSprite3D(Laya.Loader.getRes("res/Conventional/Assets/name/[BBWGC][Name]-[BBWGC][Name].lm"));
+        console.log(staticLayaMonkey+"ddhaha");
         this._scene.addChild(staticLayaMonkey);
         //设置材质
         // staticLayaMonkey.meshRenderer.material = Laya.Loader.getRes("res/threeDimen/skinModel/LayaMonkey/Assets/LayaMonkey/Materials/T_Diffuse.lmat");
         //设置位置
         staticLayaMonkey.transform.position = new Laya.Vector3(0, 0, 0.5);
         //设置缩放
-        staticLayaMonkey.transform.localScale = new Laya.Vector3(0.3, 0.3, 0.3);
+        staticLayaMonkey.transform.localScale = new Laya.Vector3(4, 4, 4);
         //设置旋转
         staticLayaMonkey.transform.rotation = new Laya.Quaternion(0.7071068, 0, 0, -0.7071067);
         //产生阴影
@@ -92,23 +94,30 @@ class MouseInteraction{
         layaMonkey_clone3.name = "小小熊";
 
         //平移
-        layaMonkey_clone1.transform.translate(new Laya.Vector3(1.5, 0, 0.0));
-        layaMonkey_clone2.transform.translate(new Laya.Vector3( -1.5, 0, 0.0));
-        layaMonkey_clone3.transform.translate(new Laya.Vector3( 2.5, 0, 0.0));
+        layaMonkey_clone1.transform.translate(new Laya.Vector3(10.5, 0, 0.0));
+        layaMonkey_clone2.transform.translate(new Laya.Vector3( -10.5, 0, 0.0));
+        layaMonkey_clone3.transform.translate(new Laya.Vector3( 20.5, 0, 0.0));
         //旋转
         layaMonkey_clone2.transform.rotate(new Laya.Vector3(0, 60, 0), false, false);
         //缩放
         var scale = new Laya.Vector3(0.1, 0.1, 0.1);
         layaMonkey_clone3.transform.localScale = scale;
+        var scale = new Laya.Vector3(1.1, 1.1, 1.1);
+        layaMonkey_clone1.transform.localScale = scale;
 
         //给模型添加碰撞组件
         var meshCollider = staticLayaMonkey.addComponent(Laya.PhysicsCollider);
+        console.log(1);
         //创建网格碰撞器
         var meshShape = new Laya.MeshColliderShape();
+        console.log(2);
         //获取模型的mesh
         meshShape.mesh = staticLayaMonkey.meshFilter.sharedMesh;
+        console.log(3);
         //设置模型的碰撞形状
         meshCollider.colliderShape = meshShape;
+        console.log(4);
+
 
         var meshCollider1 = layaMonkey_clone1.addComponent(Laya.PhysicsCollider);
         var meshShape1 = new Laya.MeshColliderShape();
@@ -155,6 +164,7 @@ class MouseInteraction{
         {
             //删除碰撞到的物体
             this.text.text = "点击到了" + this._outHitResult.collider.owner.name ;
+            console.log("点到了");
         }
     }
 }
