@@ -44,7 +44,9 @@ export default class CameraMoveScript extends Laya.Script3D {
      */
     public  onUpdate():void {
         var elapsedTime:number = Laya.timer.delta;
-        var speed = 5;
+        // var speed = 5;
+        var speed = 0.01;
+
         if (!isNaN(this.lastMouseX) && !isNaN(this.lastMouseY) && this.isMouseDown) {
             var scene:Laya.Scene3D = this.owner.scene;
             Laya.KeyBoardManager.hasKeyDown(87) && this.moveForward(-speed * elapsedTime);//W

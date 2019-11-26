@@ -27,6 +27,8 @@ class LoadResourceDemo {
     private posY:number = 0.0;
     private point:Laya.Vector2 = new Laya.Vector2();
 
+    private  yawPitchRoll:Laya.Vector3 = new Laya.Vector3();
+    private  tempRotationZ:Laya.Quaternion = new Laya.Quaternion();
     constructor() {
         this._scene = null;
         this.sprite3D = null;
@@ -301,7 +303,7 @@ class LoadResourceDemo {
     //轮盘代码
 
     mouseDown(e) {
-        console.log(e);
+        // console.log(e);
 
         if(e.target.name == "view"){
             this.move = 0;
@@ -323,7 +325,7 @@ class LoadResourceDemo {
         this.camera.viewportPointToRay(this.point,this._ray);
         //拿到射线碰撞的物体
         this.scene.physicsSimulation.rayCast(this._ray,this._outHitResult);
-        console.log(this._outHitResult);
+        // console.log(this._outHitResult);
         //如果碰撞到物体
         if (this._outHitResult.succeeded)
         {
@@ -336,6 +338,8 @@ class LoadResourceDemo {
 
             this.scene.addChild(this.BBWText);
         }
+
+
     }
 
     mouseUp() {
@@ -384,16 +388,19 @@ class LoadResourceDemo {
             if(this.move == 1){
 
                 this.camera.transform.translate(_tempVector3);
-                this.scene.getChildByName("[BBWGC][Board][Text]").transform.lookAt(this.camera.transform.position,new Laya.Vector3(0, 1, 0),false);
-                this.scene.getChildByName("[BBWGC][Board][Text]").transform.rotate(new Laya.Vector3(-90, 180, 0), true, false);;
+                if(this.scene.getChildByName("[BBWGC][Board][Text]") != null){
+                    this.scene.getChildByName("[BBWGC][Board][Text]").transform.lookAt(this.camera.transform.position,new Laya.Vector3(0, 1, 0),false);
+                    this.scene.getChildByName("[BBWGC][Board][Text]").transform.rotate(new Laya.Vector3(-90, 180, 0), true, false);
+				}
+
 
             }else{
                 this.speed = 1;
-                this.camera.transform.rotate(new Laya.Vector3(-Math.sin(this.angle) * this.speed, -Math.cos(this.angle) * this.speed, 0), true, false);
+                this.camera.transform.rotate(new Laya.Vector3(-Math.sin(this.angle) * this.speed, -Math.cos(this.angle) * this.speed, 0), false, false);
                 // todo
-                // Laya.Quaternion.createFromYawPitchRoll(this.yawPitchRoll.x, this.yawPitchRoll.y, this.yawPitchRoll.z, this.tempRotationZ);
-                // this.tempRotationZ.cloneTo(this.camera.transform.localRotation);
-                // this.camera.transform.localRotation = this.camera.transform.localRotation;
+
+
+
             }
 
 
