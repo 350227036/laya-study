@@ -1,6 +1,21 @@
 export default class CameraMoveScript extends Laya.Script {
-    protected  isMouseOut:Boolean;
+
+    protected  _tempVector3:Laya.Vector3 = new Laya.Vector3();
+    protected  lastMouseX:number;
+    protected  lastMouseY:number;
+    protected  yawPitchRoll:Laya.Vector3 = new Laya.Vector3();
+    protected  resultRotation:Laya.Quaternion = new Laya.Quaternion();
+    protected  tempRotationZ:Laya.Quaternion = new Laya.Quaternion();
+    protected  tempRotationX:Laya.Quaternion = new Laya.Quaternion();
+    protected  tempRotationY:Laya.Quaternion = new Laya.Quaternion();
+    protected  isMouseDown:Boolean;
+    protected  rotaionSpeed:number = 0.00022;
+    // protected  rotaionSpeed:number = 0.00006;
     protected  camera:Laya.BaseCamera;
+    protected  scene:Laya.Scene3D;
+
+    protected  isMouseOut:Boolean;
+    // protected  camera:Laya.BaseCamera;
     private _scene:Laya.Scene3D;
     private round:Laya.Sprite; //控制圆
 
@@ -25,6 +40,16 @@ export default class CameraMoveScript extends Laya.Script {
         Laya.timer.frameLoop(1,this,this.heroMove);
     }
 
+    /**
+     * @private
+     */
+    protected  _updateRotation():void {
+        if (Math.abs(this.yawPitchRoll.y) < 1.50) {
+            Laya.Quaternion.createFromYawPitchRoll(this.yawPitchRoll.x, this.yawPitchRoll.y, this.yawPitchRoll.z, this.tempRotationZ);
+            this.tempRotationZ.cloneTo(this.camera.transform.localRotation);
+            this.camera.transform.localRotation = this.camera.transform.localRotation;
+        }
+    }
     
     /**
      * @inheritDoc
@@ -42,13 +67,41 @@ export default class CameraMoveScript extends Laya.Script {
      * @inheritDoc
      */
     public  onUpdate():void {
+        var elapsedTime:number = Laya.timer.delta;
+        // var speed = 5;
+        var speed = 0.01;
 
+        if (!isNaN(this.lastMouseX) && !isNaN(this.lastMouseY) && this.isMouseDown) {
+            var scene:Laya.Scene3D = this.owner.scene;
+            Laya.KeyBoardManager.hasKeyDown(87) && this.moveForward(-speed * elapsedTime);//W
+            Laya.KeyBoardManager.hasKeyDown(83) && this.moveForward(speed * elapsedTime);//S
+            Laya.KeyBoardManager.hasKeyDown(65) && this.moveRight(-speed * elapsedTime);//A
+            Laya.KeyBoardManager.hasKeyDown(68) && this.moveRight(speed * elapsedTime);//D
+            Laya.KeyBoardManager.hasKeyDown(32) && this.moveVertical(speed * elapsedTime);//Q
+            Laya.KeyBoardManager.hasKeyDown(16) && this.moveVertical(-speed * elapsedTime);//E
+
+            var offsetX:number = Laya.stage.mouseX - this.lastMouseX;
+            var offsetY:number = Laya.stage.mouseY - this.lastMouseY;
+
+            var yprElem:Laya.Vector3 = this.yawPitchRoll;
+            yprElem.x -= offsetX * this.rotaionSpeed * elapsedTime;
+            yprElem.y -= offsetY * this.rotaionSpeed * elapsedTime;
+            this._updateRotation();
+        }
+        this.lastMouseX = Laya.stage.mouseX;
+        this.lastMouseY = Laya.stage.mouseY;
     }
 
     
     protected  mouseDown(e:Event):void {
         console.log(e);
         e.stopPropagation();
+        this.camera.transform.localRotation.getYawPitchRoll(this.yawPitchRoll);
+
+        this.lastMouseX = Laya.stage.mouseX;
+        this.lastMouseY = Laya.stage.mouseY;
+        this.isMouseDown = true;
+
         this.direction.pos(Laya.stage.mouseX, Laya.stage.mouseY);
         this.direction.graphics.drawCircle(0, 0, 5, "#0000ff");
         this.round.graphics.drawCircle(Laya.stage.mouseX, Laya.stage.mouseY, 25, "#00ffff");
@@ -56,6 +109,7 @@ export default class CameraMoveScript extends Laya.Script {
         this.centerX = Laya.stage.mouseX;
         this.centerY = Laya.stage.mouseY;
         Laya.stage.on(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
+
 
     }
 
@@ -80,6 +134,7 @@ export default class CameraMoveScript extends Laya.Script {
         }
     }
     protected onMouseUp(e:Event):void {
+        this.isMouseDown = false;
         Laya.stage.off(Laya.Event.MOUSE_MOVE, this, this.mouseMove);
         this.speed = 0;
         this.round.graphics.clear();
@@ -104,7 +159,7 @@ export default class CameraMoveScript extends Laya.Script {
             // _tempVector3.y = -0.11 * elapsedTime;]
             // this.camera.transform.translate(_tempVector3);
             this.speed = 1;
-            this.camera.transform.rotate(new Laya.Vector3(-Math.sin(this.angle) * this.speed, -Math.cos(this.angle) * this.speed, 0), true, false);
+            // this.camera.transform.rotate(new Laya.Vector3(-Math.sin(this.angle) * this.speed, -Math.cos(this.angle) * this.speed, 0), true, false);
 
         }
     }
